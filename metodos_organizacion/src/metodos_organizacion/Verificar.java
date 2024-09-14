@@ -1,6 +1,8 @@
 package tests;
-public class Verificar {
 
+import java.util.Stack;
+
+public class Verificar {
     public static boolean apertura(char c) {
         return c == '(';
     }
@@ -25,50 +27,57 @@ public class Verificar {
     }
 
     public static int fVeriExpresion(String cadena) throws Exception {
-        ArrayStack pilaCadena = new ArrayStack(cadena.length());
-        for (int i = 0; i < cadena.length(); i++) {
-            char caracter = cadena.charAt(i);
-            if (caracter >= '0' && caracter <= '9') {
-                pilaCadena.push(caracter - '0');
-            } else {
-                switch (caracter) {
-                    case '+':
-                    case '-':
-                    case '*':
-                    case '/':
-                        pilaCadena.push(caracter);
-                        break;
-                    case ')':
-                        int numero2 = (int) pilaCadena.pop();
-                        char operacion = (char) pilaCadena.pop();
-                        int numero1 = (int) pilaCadena.pop();
-                        int resultado = fOperacion(numero1, numero2, operacion);
-                        pilaCadena.push(resultado);
-                        break;
+        Stack<Integer> valores = new Stack<>();
+        Stack<Character> operadores = new Stack<>();
+
+        for (char c : cadena.toCharArray()) {
+            if (Character.isDigit(c)) {
+                valores.push(c - '0');
+            } else if (c == '(') {
+                operadores.push(c);
+            } else if (c == ')') {
+                while (!operadores.isEmpty() && operadores.peek() != '(') {
+                    valores.push(evaluarOperacion(valores.pop(), valores.pop(), operadores.pop()));
                 }
+                operadores.pop(); // Remove '('
+            } else if (c == '+' || c == '-' || c == '*' || c == '/') {
+                while (!operadores.isEmpty() && prioridad(c) <= prioridad(operadores.peek())) {
+                    valores.push(evaluarOperacion(valores.pop(), valores.pop(), operadores.pop()));
+                }
+                operadores.push(c);
             }
         }
-        if (pilaCadena.isEmpty()) {
+
+        while (!operadores.isEmpty()) {
+            valores.push(evaluarOperacion(valores.pop(), valores.pop(), operadores.pop()));
+        }
+
+        if (valores.isEmpty()) {
             throw new Exception("No se encontró una expresión válida.");
         }
-        return (int) pilaCadena.pop();
+
+        return valores.pop();
     }
 
-    public static int fOperacion(int numero1, int numero2, char operacion) throws Exception {
-        switch (operacion) {
+    private static int evaluarOperacion(int num2, int num1, char op) throws Exception {
+        switch (op) {
+            case '+': return num1 + num2;
+            case '-': return num1 - num2;
+            case '*': return num1 * num2;
+            case '/': 
+                if (num2 == 0) throw new Exception("División por cero.");
+                return num1 / num2;
+            default: throw new Exception("Operación no válida: " + op);
+        }
+    }
+
+    private static int prioridad(char operador) {
+        switch (operador) {
             case '+':
-                return numero1 + numero2;
-            case '-':
-                return numero1 - numero2;
+            case '-': return 1;
             case '*':
-                return numero1 * numero2;
-            case '/':
-                if (numero2 == 0) {
-                    throw new Exception("División por cero.");
-                }
-                return numero1 / numero2;
-            default:
-                throw new Exception("Operación no válida: " + operacion);
+            case '/': return 2;
+            default: return 0;
         }
     }
 }

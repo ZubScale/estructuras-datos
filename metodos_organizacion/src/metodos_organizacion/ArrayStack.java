@@ -51,4 +51,13 @@ public class ArrayStack {
 		}
 		return s;
 	}
+
+public Object peek() {
+    Object val = null;
+    if (!isEmpty()) {
+        val = stack[a - 1];
+    }
+    return val;
 }
+}
+// esto es nuevo jijiji

@@ -2,24 +2,28 @@ package tests;
 import java.util.Scanner;
 
 public class Main {
-	public static void main(String[] args) {
-        Scanner leer = new Scanner(System.in);
-        System.out.print("Ingresa una operación: ");
-        String cadena = leer.nextLine();
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Introduce una expresión matemática: ");
+        String expresion = scanner.nextLine();
 
-        boolean balanceado = Verificar.validacion(cadena);
-        System.out.println("Paréntesis balanceados: " + balanceado);
-        
-        if (balanceado) {
+        if (Verificar.validacion(expresion)) {
             try {
-                int resultadoOperacion = Verificar.fVeriExpresion(cadena);
-                System.out.println("Resultado de la operación: " + resultadoOperacion);
+                // Primero evaluamos la expresión
+                int resultado = Verificar.fVeriExpresion(expresion);
+                System.out.println("Resultado: " + resultado);
+                
+                // Luego convertimos la expresión a notación polaca
+                String polaca = MetodoPolaco.convertirAPolaca(expresion);
+                System.out.println("Notación polaca: " + polaca);
+                
             } catch (Exception e) {
-                System.out.println("Error en la evaluación de la expresión: " + e.getMessage());
+                System.out.println("Error al evaluar la expresión: " + e.getMessage());
             }
         } else {
-            System.out.println("La operación contiene paréntesis desbalanceados.");
+            System.out.println("Error: Expresión con paréntesis no balanceados.");
         }
-        leer.close();
+
+        scanner.close();
     }
 }
